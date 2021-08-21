@@ -12,24 +12,23 @@ func main() {
 
 	// Build the MapHandler using the mux as the fallback
 	pathsToUrls := map[string]string{
-		"/urlshort-godoc": "https://godoc.org/github.com/gophercises/urlshort",
-		"/yaml-godoc":     "https://godoc.org/gopkg.in/yaml.v2",
+		"/undershorts":        "https://github.com/masl/undershorts",
+		"/undershorts-author": "https://github.com/masl",
 	}
 	mapHandler := handler.MapHandler(pathsToUrls, mux)
 
-	// Build the YAMLHandler using the mapHandler as the
-	// fallback
+	// Build the YAMLHandler using the mapHandler as the fallback
 	yaml := `
 - path: /urlshort
-  url: https://github.com/gophercises/urlshort
-- path: /urlshort-final
-  url: https://github.com/gophercises/urlshort/tree/solution
+  url: https://github.com/masl/undershorts
+- path: /author
+  url: https://github.com/masl
 `
 	yamlHandler, err := handler.YAMLHandler([]byte(yaml), mapHandler)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("Starting the server on :8080")
+	fmt.Println("Starting the server on http://localhost:8080")
 	http.ListenAndServe(":8080", yamlHandler)
 }
 
