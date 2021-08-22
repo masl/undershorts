@@ -26,7 +26,7 @@ func main() {
 
 	yamlContent, err := ioutil.ReadFile(*flagYAML)
 	if err != nil {
-		panic(err)
+		yamlContent = nil
 	}
 
 	yamlHandler, err := handler.YAMLHandler([]byte(yamlContent), mapHandler)
