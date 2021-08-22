@@ -3,7 +3,7 @@ name: docker
 on:
   push:
     branches:
-      - master
+      - main
       - develop
     paths-ignore:
       - '**.md'
@@ -26,7 +26,7 @@ jobs:
         run: echo "TAG=staging" >> $GITHUB_ENV
 
       - name: define latest tag
-        if: env.BRANCH == 'master'
+        if: env.BRANCH == 'main'
         run: echo "TAG=latest" >> $GITHUB_ENV
 
       - name: set up qemu
