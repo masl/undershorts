@@ -1,6 +1,7 @@
 package web
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -34,6 +35,12 @@ func Serve() (err error) {
 	if err != nil {
 		return
 	}
+
+	// API handler
+	api := router.PathPrefix("/api").Subrouter()
+	api.HandleFunc("/status", func(rw http.ResponseWriter, r *http.Request) {
+		json.NewEncoder(rw).Encode(map[string]bool{"ok": true})
+	})
 
 	// Start http server
 	srv := &http.Server{
