@@ -38,9 +38,22 @@ func Serve() (err error) {
 
 	// API handler
 	api := router.PathPrefix("/api").Subrouter()
+	// GET status
 	api.HandleFunc("/status", func(rw http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(rw).Encode(map[string]bool{"ok": true})
-	})
+	}).Methods("GET")
+
+	// GET shorts data
+	api.HandleFunc("/{path}", func(rw http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		if vars["path"] == "" /* exists */ {
+			rw.WriteHeader(http.StatusOK)
+			json.NewEncoder(rw).Encode(map[string]string{"path": vars["path"], "url": ""})
+		} else {
+			rw.WriteHeader(http.StatusNotFound)
+			rw.Write([]byte("404 page not found"))
+		}
+	}).Methods("GET")
 
 	// Start http server
 	srv := &http.Server{
