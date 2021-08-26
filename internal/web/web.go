@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/masl/undershorts/internal/db"
 	"github.com/masl/undershorts/internal/handler"
 )
 
@@ -36,6 +37,17 @@ func Serve() (err error) {
 		return
 	}
 
+	// Redis handler
+	redisContent, err := db.GetAllURLS(db.RedisClient)
+	if err != nil {
+		return
+	}
+
+	redisHandler, err := handler.RedisHandler(redisContent, yamlHandler)
+	if err != nil {
+		return
+	}
+
 	// API handler
 	api := router.PathPrefix("/api").Subrouter()
 	// GET status
@@ -57,7 +69,7 @@ func Serve() (err error) {
 
 	// Start http server
 	srv := &http.Server{
-		Handler: yamlHandler,
+		Handler: redisHandler,
 		Addr:    "127.0.0.1:8000",
 	}
 
