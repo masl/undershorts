@@ -11,7 +11,7 @@ import (
 func main() {
 	// Create redis
 	redisClient := db.New()
-	err := redisClient.Set(context.Background(), "ping", true, 0).Err()
+	err := redisClient.Ping(context.Background()).Err()
 	if err != nil {
 		fmt.Println("Problem with redis connection")
 		return
