@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"os"
 
 	"github.com/go-redis/redis/v8"
 )
@@ -9,8 +10,8 @@ import (
 // New redis client
 func New() *redis.Client {
 	return redis.NewClient(&redis.Options{
-		Addr:     "tcp://172.18.0.2:6379",
-		Password: "",
+		Addr:     GetEnv("UNDERSHORTS_REDIS_ADDR", "127.0.0.1:6379"),
+		Password: GetEnv("UNDERSHORTS_REDIS_PASSWORD", ""),
 		DB:       0,
 	})
 }
@@ -36,6 +37,7 @@ func GetURL(path string) (url string, err error) {
 	return
 }
 
+// Return all urls
 func GetAllURLS() (allKeys []string, err error) {
 	iter := RedisClient.Scan(ctx, 0, "*", 0).Iterator()
 	for iter.Next(ctx) {
@@ -45,4 +47,12 @@ func GetAllURLS() (allKeys []string, err error) {
 		return
 	}
 	return
+}
+
+// Get env with fallback if env empty
+func GetEnv(key, fallback string) string {
+    if value, ok := os.LookupEnv(key); ok {
+        return value
+    }
+    return fallback
 }
