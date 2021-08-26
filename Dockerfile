@@ -9,4 +9,4 @@ FROM alpine:3 AS final
 
 WORKDIR /app
 COPY --from=build /build/undershorts .
-ENTRYPOINT [ "./undershorts" ]
+CMD [ "/app/undershorts" ]
