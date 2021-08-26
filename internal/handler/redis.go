@@ -8,22 +8,22 @@ import (
 
 // Parse Redis paths to http handler
 func RedisHandler(urls []string, fallback http.Handler) (http.HandlerFunc, error) {
-	pathMap, err := getPaths(urls)
+	pathUrlMap, err := getPathUrlMap(urls)
 	if err != nil {
 		return nil, err
 	}
-	return MapHandler(pathMap, fallback), nil
+	return MapHandler(pathUrlMap, fallback), nil
 }
 
 // Maps path keys to url values
-func getPaths(urls []string) (pathMap map[string]string, err error) {
+func getPathUrlMap(paths []string) (pathMap map[string]string, err error) {
 	pathMap = make(map[string]string)
-	for _, v := range urls {
-		path, err := db.GetURL(db.RedisClient, v)
+	for _, path := range paths {
+		url, err := db.GetURL(path)
 		if err != nil {
 			continue
 		}
-		pathMap[v] = path
+		pathMap[path] = url
 	}
 	return
 }

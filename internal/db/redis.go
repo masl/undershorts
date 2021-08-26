@@ -9,7 +9,7 @@ import (
 // New redis client
 func New() *redis.Client {
 	return redis.NewClient(&redis.Options{
-		Addr:     "127.0.0.1:6379",
+		Addr:     "tcp://172.18.0.2:6379",
 		Password: "",
 		DB:       0,
 	})
@@ -19,8 +19,8 @@ var ctx = context.Background()
 var RedisClient *redis.Client
 
 // Set a path and it's corresponding long url
-func SetURL(client *redis.Client, path string, url string) (err error) {
-	err = client.Set(ctx, path, url, 0).Err()
+func SetURL(path string, url string) (err error) {
+	err = RedisClient.Set(ctx, path, url, 0).Err()
 	if err != nil {
 		return
 	}
@@ -28,16 +28,16 @@ func SetURL(client *redis.Client, path string, url string) (err error) {
 }
 
 // Return long url by shorts path
-func GetURL(client *redis.Client, path string) (url string, err error) {
-	url, err = client.Get(ctx, path).Result()
+func GetURL(path string) (url string, err error) {
+	url, err = RedisClient.Get(ctx, path).Result()
 	if err == redis.Nil || err != nil {
 		return
 	}
 	return
 }
 
-func GetAllURLS(client *redis.Client) (allKeys []string, err error) {
-	iter := client.Scan(ctx, 0, "*", 0).Iterator()
+func GetAllURLS() (allKeys []string, err error) {
+	iter := RedisClient.Scan(ctx, 0, "*", 0).Iterator()
 	for iter.Next(ctx) {
 		allKeys = append(allKeys, iter.Val())
 	}

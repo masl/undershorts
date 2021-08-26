@@ -13,7 +13,7 @@ func main() {
 	db.RedisClient = db.New()
 	err := db.RedisClient.Ping(context.Background()).Err()
 	if err != nil {
-		fmt.Println("Problem with redis connection")
+		fmt.Println("Problem with redis connection:", err)
 		return
 	}
 

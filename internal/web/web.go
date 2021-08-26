@@ -38,7 +38,7 @@ func Serve() (err error) {
 	}
 
 	// Redis handler
-	redisContent, err := db.GetAllURLS(db.RedisClient)
+	redisContent, err := db.GetAllURLS()
 	if err != nil {
 		return
 	}
