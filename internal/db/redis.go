@@ -2,7 +2,6 @@ package db
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/go-redis/redis/v8"
 )
@@ -17,6 +16,7 @@ func New() *redis.Client {
 }
 
 var ctx = context.Background()
+var RedisClient *redis.Client
 
 // Set a path and it's corresponding long url
 func SetURL(client *redis.Client, path string, url string) (err error) {
@@ -29,10 +29,20 @@ func SetURL(client *redis.Client, path string, url string) (err error) {
 
 // Return long url by shorts path
 func GetURL(client *redis.Client, path string) (url string, err error) {
-	val, err := client.Get(ctx, path).Result()
+	url, err = client.Get(ctx, path).Result()
 	if err == redis.Nil || err != nil {
 		return
 	}
-	fmt.Println(val)
+	return
+}
+
+func GetAllURLS(client *redis.Client) (allKeys []string, err error) {
+	iter := client.Scan(ctx, 0, "*", 0).Iterator()
+	for iter.Next(ctx) {
+		allKeys = append(allKeys, iter.Val())
+	}
+	if err = iter.Err(); err != nil {
+		return
+	}
 	return
 }
