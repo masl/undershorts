@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 	"github.com/masl/undershorts/internal/db"
@@ -27,14 +28,26 @@ func Serve() (err error) {
 
 	// YAML handler
 	defaultYAMLPath := "./paths.yaml"
-	yamlContent, err := ioutil.ReadFile(defaultYAMLPath)
-	if err != nil {
-		return
-	}
 
-	yamlHandler, err := handler.YAMLHandler([]byte(yamlContent), mapHandler)
-	if err != nil {
-		return
+	var yamlContent []byte
+	var yamlHandler http.Handler
+
+	fileinfo, err := os.Stat(defaultYAMLPath)
+	if os.IsNotExist(err) || fileinfo.IsDir() {
+		yamlHandler, err = handler.YAMLHandler(make([]byte, 0), mapHandler)
+		if err != nil {
+			return
+		}
+	} else {
+		yamlContent, err = ioutil.ReadFile(defaultYAMLPath)
+		if err != nil {
+			return
+		}
+
+		yamlHandler, err = handler.YAMLHandler([]byte(yamlContent), mapHandler)
+		if err != nil {
+			return
+		}
 	}
 
 	// Redis handler
