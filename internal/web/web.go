@@ -79,13 +79,13 @@ func Serve() (err error) {
 			rw.Write([]byte("404 page not found"))
 		}
 	}).Methods("GET")
-
+	webAddress := db.GetEnv("UNDERSHORTS_WEB_ADDRESS", "http://0.0.0.0:8000")
 	// Start http server
 	srv := &http.Server{
 		Handler: redisHandler,
-		Addr:    "127.0.0.1:8000",
+		Addr:    webAddress,
 	}
 
-	fmt.Println("Starting the server on http://127.0.0.1:8000")
+	fmt.Println("Starting the server on", webAddress)
 	return srv.ListenAndServe()
 }

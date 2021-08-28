@@ -10,7 +10,7 @@ import (
 // New redis client
 func New() *redis.Client {
 	return redis.NewClient(&redis.Options{
-		Addr:     GetEnv("UNDERSHORTS_REDIS_ADDR", "127.0.0.1:6379"),
+		Addr:     GetEnv("UNDERSHORTS_REDIS_ADDRESS", "127.0.0.1:6379"),
 		Password: GetEnv("UNDERSHORTS_REDIS_PASSWORD", ""),
 		DB:       0,
 	})
