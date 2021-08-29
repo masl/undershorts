@@ -13,12 +13,12 @@ type Y []struct {
 
 // Parse YAML files to http handler which maps path keys to url values
 func YAMLHandler(yml []byte, fallback http.Handler) (http.HandlerFunc, error) {
-	parsedYaml, err := parseYAML(yml)
+	parsedYAML, err := parseYAML(yml)
 	if err != nil {
 		return nil, err
 	}
 
-	pathMap := buildMap(parsedYaml)
+	pathMap := buildMap(parsedYAML)
 	if err != nil {
 		return nil, err
 	}
@@ -26,6 +26,7 @@ func YAMLHandler(yml []byte, fallback http.Handler) (http.HandlerFunc, error) {
 	return MapHandler(pathMap, fallback), nil
 }
 
+// Parse YAML into struct
 func parseYAML(yml []byte) (y Y, err error) {
 	err = yaml.Unmarshal(yml, &y)
 	if err != nil {
@@ -35,6 +36,7 @@ func parseYAML(yml []byte) (y Y, err error) {
 	return
 }
 
+// Create map from parsed YAML
 func buildMap(yml Y) (pathMap map[string]string) {
 	pathMap = make(map[string]string)
 	for _, v := range yml {

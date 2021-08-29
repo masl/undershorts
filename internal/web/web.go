@@ -32,6 +32,7 @@ func Serve() (err error) {
 	var yamlContent []byte
 	var yamlHandler http.Handler
 
+	// Check existence of YAML file
 	fileinfo, err := os.Stat(defaultYAMLPath)
 	if os.IsNotExist(err) || fileinfo.IsDir() {
 		yamlHandler, err = handler.YAMLHandler(make([]byte, 0), mapHandler)
@@ -79,13 +80,14 @@ func Serve() (err error) {
 			rw.Write([]byte("404 page not found"))
 		}
 	}).Methods("GET")
-	webAddress := db.GetEnv("UNDERSHORTS_WEB_ADDRESS", "http://0.0.0.0:8000")
+
 	// Start http server
+	webAddress := db.GetEnv("UNDERSHORTS_WEB_ADDRESS", "0.0.0.0:8000")
 	srv := &http.Server{
 		Handler: redisHandler,
 		Addr:    webAddress,
 	}
 
-	fmt.Println("Starting the server on", webAddress)
+	fmt.Println("Starting web server on", webAddress)
 	return srv.ListenAndServe()
 }
