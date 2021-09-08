@@ -77,12 +77,27 @@ func Serve() (err error) {
 	// GET shorts data
 	api.HandleFunc("/{path}", func(rw http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		if vars["path"] == "" /* exists */ {
-			rw.WriteHeader(http.StatusOK)
-			json.NewEncoder(rw).Encode(map[string]string{"path": vars["path"], "url": ""})
-		} else {
-			rw.WriteHeader(http.StatusNotFound)
-			rw.Write([]byte("404 page not found"))
+		shortPath := vars["path"]
+
+		all, err := db.GetAllURLS()
+		if err != nil {
+			fmt.Println("Error while getting keys")
+		}
+
+		for k, v := range all {
+			if v == shortPath {
+				longUrl, err := db.GetURL(shortPath)
+				if err != nil {
+					continue
+				}
+				rw.WriteHeader(http.StatusOK)
+				json.NewEncoder(rw).Encode(map[string]string{"path": shortPath, "url": longUrl})
+				break
+			}
+			if k >= len(all)-1 {
+				rw.WriteHeader(http.StatusNotFound)
+				rw.Write([]byte("this path does not exist"))
+			}
 		}
 	}).Methods("GET")
 
