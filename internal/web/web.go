@@ -12,6 +12,11 @@ import (
 	"github.com/masl/undershorts/internal/handler"
 )
 
+type PostBody struct {
+	LongUrl   string `json:"longUrl"`
+	ShortPath string `json:"shortPath"`
+}
+
 func Serve() (err error) {
 	router := mux.NewRouter()
 	router.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
@@ -80,6 +85,39 @@ func Serve() (err error) {
 			rw.Write([]byte("404 page not found"))
 		}
 	}).Methods("GET")
+
+	// POST shorts data
+	api.HandleFunc("/shorten", func(rw http.ResponseWriter, r *http.Request) {
+		fmt.Println("Shorten POST request sent")
+		var latestErr error
+
+		b, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			fmt.Println("Error while getting request body:", err)
+			latestErr = err
+		}
+
+		pb := new(PostBody)
+		err = json.Unmarshal(b, &pb)
+		if err != nil {
+			fmt.Println("Error while parsing request body:", err)
+			latestErr = err
+		}
+
+		err = db.SetURL(pb.ShortPath, pb.LongUrl)
+		if err != nil {
+			fmt.Println("Error while writing redis db:", err)
+			latestErr = err
+		}
+
+		if latestErr != nil {
+			rw.WriteHeader(http.StatusInternalServerError)
+			rw.Write([]byte(latestErr.Error()))
+		} else {
+			rw.WriteHeader(http.StatusOK)
+			json.NewEncoder(rw).Encode(map[string]string{"shorten": "ok"})
+		}
+	}).Methods("POST")
 
 	// Start http server
 	webAddress := db.GetEnv("UNDERSHORTS_WEB_ADDRESS", "0.0.0.0:8000")
