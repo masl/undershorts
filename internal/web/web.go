@@ -103,6 +103,26 @@ func Serve() (err error) {
 
 	// POST shorts data
 	api.HandleFunc("/shorten", func(rw http.ResponseWriter, r *http.Request) {
+		// Authorization
+		un, pw, ok := r.BasicAuth()
+		if !ok {
+			fmt.Println("Error parsing basic auth")
+			rw.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		if un != db.GetEnv("AUTH_USERNAME", "username") {
+			fmt.Println("Error parsing basic auth")
+			rw.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		if pw != db.GetEnv("AUTH_PASSWORD", "password") {
+			fmt.Println("Error parsing basic auth")
+			rw.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
 		fmt.Println("Shorten POST request sent")
 		var latestErr error
 
