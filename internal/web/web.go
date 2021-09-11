@@ -131,6 +131,13 @@ func Serve() (err error) {
 		} else {
 			rw.WriteHeader(http.StatusOK)
 			json.NewEncoder(rw).Encode(map[string]string{"shorten": "ok"})
+
+			// Register new route
+			go func() {
+				router.HandleFunc("/"+pb.ShortPath, func(rw http.ResponseWriter, r *http.Request) {
+					http.Redirect(rw, r, pb.LongUrl, http.StatusFound)
+				})
+			}()
 		}
 	}).Methods("POST")
 
