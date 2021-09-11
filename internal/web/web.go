@@ -1,7 +1,6 @@
 package web
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -10,12 +9,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/masl/undershorts/internal/db"
 	"github.com/masl/undershorts/internal/handler"
+	"github.com/masl/undershorts/internal/web/api"
 )
-
-type PostBody struct {
-	LongUrl   string `json:"longUrl"`
-	ShortPath string `json:"shortPath"`
-}
 
 func Serve() (err error) {
 	router := mux.NewRouter()
@@ -68,102 +63,12 @@ func Serve() (err error) {
 	}
 
 	// API handler
-	api := router.PathPrefix("/api").Subrouter()
-	// GET status
-	api.HandleFunc("/status", func(rw http.ResponseWriter, r *http.Request) {
-		json.NewEncoder(rw).Encode(map[string]bool{"ok": true})
-	}).Methods("GET")
+	apiRouter := router.PathPrefix("/api").Subrouter()
 
-	// GET shorts data
-	api.HandleFunc("/{path}", func(rw http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		shortPath := vars["path"]
-
-		all, err := db.GetAllURLS()
-		if err != nil {
-			fmt.Println("Error while getting keys")
-		}
-
-		for k, v := range all {
-			if v == shortPath {
-				longUrl, err := db.GetURL(shortPath)
-				if err != nil {
-					continue
-				}
-				rw.WriteHeader(http.StatusOK)
-				json.NewEncoder(rw).Encode(map[string]string{"path": shortPath, "url": longUrl})
-				break
-			}
-			if k >= len(all)-1 {
-				rw.WriteHeader(http.StatusNotFound)
-				rw.Write([]byte("this path does not exist"))
-			}
-		}
-	}).Methods("GET")
-
-	// POST shorts data
-	api.HandleFunc("/shorten", func(rw http.ResponseWriter, r *http.Request) {
-		// Authorization
-		un, pw, ok := r.BasicAuth()
-		if !ok {
-			fmt.Println("Error parsing basic auth")
-			rw.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-
-		if un != db.GetEnv("AUTH_USERNAME", "username") {
-			fmt.Println("Error parsing basic auth")
-			rw.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-
-		if pw != db.GetEnv("AUTH_PASSWORD", "password") {
-			fmt.Println("Error parsing basic auth")
-			rw.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-
-		fmt.Println("Shorten POST request sent")
-		var latestErr error
-
-		b, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			fmt.Println("Error while getting request body:", err)
-			latestErr = err
-		}
-
-		pb := new(PostBody)
-		err = json.Unmarshal(b, &pb)
-		if err != nil {
-			fmt.Println("Error while parsing request body:", err)
-			latestErr = err
-		}
-
-		if db.Exist(pb.ShortPath) {
-			latestErr = fmt.Errorf("path already exists")
-		}
-
-		err = db.SetURL(pb.ShortPath, pb.LongUrl)
-		if err != nil {
-			fmt.Println("Error while writing redis db:", err)
-			latestErr = err
-		}
-
-		if latestErr != nil {
-			rw.WriteHeader(http.StatusInternalServerError)
-			rw.Write([]byte(latestErr.Error()))
-		} else {
-			rw.WriteHeader(http.StatusOK)
-			json.NewEncoder(rw).Encode(map[string]string{"shorten": "ok"})
-
-			// Register new route
-			go func() {
-				router.HandleFunc("/"+pb.ShortPath, func(rw http.ResponseWriter, r *http.Request) {
-					http.Redirect(rw, r, pb.LongUrl, http.StatusFound)
-				})
-			}()
-		}
-	}).Methods("POST")
+	// Register API Endpoints
+	api.StatusEndpoint(apiRouter)
+	api.PathEndpoint(apiRouter)
+	api.ShortenEndpoint(apiRouter)
 
 	// Start http server
 	webAddress := db.GetEnv("UNDERSHORTS_WEB_ADDRESS", "0.0.0.0:8000")
