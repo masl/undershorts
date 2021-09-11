@@ -119,6 +119,10 @@ func Serve() (err error) {
 			latestErr = err
 		}
 
+		if db.Exist(pb.ShortPath) {
+			latestErr = fmt.Errorf("path already exists")
+		}
+
 		err = db.SetURL(pb.ShortPath, pb.LongUrl)
 		if err != nil {
 			fmt.Println("Error while writing redis db:", err)

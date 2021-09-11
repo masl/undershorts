@@ -19,6 +19,12 @@ func New() *redis.Client {
 var ctx = context.Background()
 var RedisClient *redis.Client
 
+// Return existence of path as int
+func Exist(path string) (exists bool) {
+	code, _ := RedisClient.Exists(ctx, path).Result()
+	return code != 0
+}
+
 // Set a path and it's corresponding long url
 func SetURL(path string, url string) (err error) {
 	err = RedisClient.Set(ctx, path, url, 0).Err()
