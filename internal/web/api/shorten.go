@@ -69,7 +69,7 @@ func ShortenEndpoint(router *mux.Router) {
 		}
 
 		// Write creation time to redis
-		err = db.SetURL(pb.ShortPath+":time", time.Now().String())
+		err = db.SetURL(pb.ShortPath+":time", time.Now().Format(time.RFC3339))
 		if err != nil {
 			fmt.Println("Error while writing redis db:", err)
 			latestErr = err

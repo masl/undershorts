@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"os"
+	"time"
 
 	"github.com/go-redis/redis/v8"
 )
@@ -18,6 +19,19 @@ func New() *redis.Client {
 
 var ctx = context.Background()
 var RedisClient *redis.Client
+
+// Return creation timestamp by short path
+func GetTime(path string) (timestamp time.Time, err error) {
+	rawTime, err := RedisClient.Get(ctx, path+":time").Result()
+	if err == redis.Nil || err != nil {
+		return
+	}
+	timestamp, err = time.Parse(time.RFC3339, rawTime)
+	if err != nil {
+		return
+	}
+	return
+}
 
 // Return existence of path as int
 func Exist(path string) (exists bool) {

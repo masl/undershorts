@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/masl/undershorts/internal/db"
@@ -28,8 +29,13 @@ func PathEndpoint(router *mux.Router) {
 				if err != nil {
 					continue
 				}
+				timestamp, err := db.GetTime(shortPath)
+				if err != nil {
+					fmt.Println(err)
+					timestamp = time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)
+				}
 				rw.WriteHeader(http.StatusOK)
-				json.NewEncoder(rw).Encode(map[string]string{"path": shortPath, "url": longUrl})
+				json.NewEncoder(rw).Encode(map[string]string{"path": shortPath, "url": longUrl, "time": timestamp.String()})
 				break
 			}
 			if k >= len(all)-1 {
