@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/masl/undershorts/internal/db"
@@ -62,6 +63,13 @@ func ShortenEndpoint(router *mux.Router) {
 
 		// Write data to redis
 		err = db.SetURL(pb.ShortPath, pb.LongUrl)
+		if err != nil {
+			fmt.Println("Error while writing redis db:", err)
+			latestErr = err
+		}
+
+		// Write creation time to redis
+		err = db.SetURL(pb.ShortPath+":time", time.Now().String())
 		if err != nil {
 			fmt.Println("Error while writing redis db:", err)
 			latestErr = err
