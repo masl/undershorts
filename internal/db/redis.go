@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -61,7 +62,9 @@ func GetURL(path string) (url string, err error) {
 func GetAllURLS() (allKeys []string, err error) {
 	iter := RedisClient.Scan(ctx, 0, "*", 0).Iterator()
 	for iter.Next(ctx) {
-		allKeys = append(allKeys, iter.Val())
+		if !strings.HasSuffix(iter.Val(), ":time") {
+			allKeys = append(allKeys, iter.Val())
+		}
 	}
 	if err = iter.Err(); err != nil {
 		return
