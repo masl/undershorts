@@ -20,8 +20,8 @@ func Serve() (err error) {
 
 	// Map handler
 	pathsToUrls := map[string]string{
-		"/undershorts": "https://github.com/masl/undershorts",
-		"/author":      "https://github.com/masl",
+		"undershorts": "https://github.com/masl/undershorts",
+		"author":      "https://github.com/masl",
 	}
 
 	mapHandler := handler.MapHandler(pathsToUrls, router)
@@ -68,7 +68,7 @@ func Serve() (err error) {
 	// Register API Endpoints
 	api.StatusEndpoint(apiRouter)
 	api.PathEndpoint(apiRouter)
-	api.ShortenEndpoint(apiRouter)
+	api.ShortenEndpoint(apiRouter, router)
 
 	// Start http server
 	webAddress := db.GetEnv("UNDERSHORTS_WEB_ADDRESS", "0.0.0.0:8000")

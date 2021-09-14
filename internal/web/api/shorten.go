@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -16,7 +17,7 @@ type PostBody struct {
 	ShortPath string `json:"shortPath"`
 }
 
-func ShortenEndpoint(router *mux.Router) {
+func ShortenEndpoint(router *mux.Router, mux *mux.Router) {
 	// POST shorts data
 	router.HandleFunc("/shorten", func(rw http.ResponseWriter, r *http.Request) {
 		// Set up authorization
@@ -61,6 +62,9 @@ func ShortenEndpoint(router *mux.Router) {
 			latestErr = fmt.Errorf("path already exists")
 		}
 
+		// Format short path
+		pb.ShortPath = strings.ReplaceAll(pb.ShortPath, "/", "")
+
 		// Write data to redis
 		err = db.SetURL(pb.ShortPath, pb.LongUrl)
 		if err != nil {
@@ -84,7 +88,7 @@ func ShortenEndpoint(router *mux.Router) {
 
 			// Register new route
 			go func() {
-				router.HandleFunc("/"+pb.ShortPath, func(rw http.ResponseWriter, r *http.Request) {
+				mux.HandleFunc("/"+pb.ShortPath, func(rw http.ResponseWriter, r *http.Request) {
 					http.Redirect(rw, r, pb.LongUrl, http.StatusFound)
 				})
 			}()

@@ -34,7 +34,7 @@ func GetTime(path string) (timestamp time.Time, err error) {
 	return
 }
 
-// Return existence of path as int
+// Return existence of path
 func Exist(path string) (exists bool) {
 	code, _ := RedisClient.Exists(ctx, path).Result()
 	return code != 0
