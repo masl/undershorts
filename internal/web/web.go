@@ -2,6 +2,7 @@ package web
 
 import (
 	"fmt"
+	"html/template"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -15,7 +16,15 @@ import (
 func Serve() (err error) {
 	router := mux.NewRouter()
 	router.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
-		rw.Write([]byte("Hello World!"))
+		t, err := template.New("index").Parse(`<h1>Hello World</h1>`)
+		if err != nil {
+			return
+		}
+
+		err = t.Execute(rw, nil)
+		if err != nil {
+			return
+		}
 	})
 
 	// Map handler
