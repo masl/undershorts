@@ -17,15 +17,7 @@ func Serve() (err error) {
 	router := mux.NewRouter()
 	// Main route handler
 	router.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
-		t, err := template.New("index").Parse(`<h1>Hello World</h1>`)
-		if err != nil {
-			return
-		}
-
-		err = t.Execute(rw, nil)
-		if err != nil {
-			return
-		}
+		rw.Write([]byte("Undershorts!"))
 	})
 
 	// Path not found handler
