@@ -9,4 +9,5 @@ FROM alpine:3 AS final
 
 WORKDIR /app
 COPY --from=build /build/undershorts .
+COPY --from=build /build/web ./web
 CMD [ "/app/undershorts" ]

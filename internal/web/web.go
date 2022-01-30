@@ -2,23 +2,20 @@ package web
 
 import (
 	"fmt"
-	"html/template"
-	"io/ioutil"
-	"net/http"
-	"os"
-
 	"github.com/gorilla/mux"
 	"github.com/masl/undershorts/internal/db"
 	"github.com/masl/undershorts/internal/handler"
 	"github.com/masl/undershorts/internal/web/api"
+	"html/template"
+	"io/ioutil"
+	"net/http"
+	"os"
 )
 
 func Serve() (err error) {
 	router := mux.NewRouter()
 	// Main route handler
-	router.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
-		rw.Write([]byte("Undershorts!"))
-	})
+	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./web")))
 
 	// Path not found handler
 	router.NotFoundHandler = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
