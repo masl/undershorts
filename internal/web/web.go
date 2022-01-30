@@ -6,7 +6,6 @@ import (
 	"github.com/masl/undershorts/internal/db"
 	"github.com/masl/undershorts/internal/handler"
 	"github.com/masl/undershorts/internal/web/api"
-	"html/template"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -14,20 +13,12 @@ import (
 
 func Serve() (err error) {
 	router := mux.NewRouter()
-	// Main route handler
-	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./web")))
 
-	// Path not found handler
-	router.NotFoundHandler = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-		t, err := template.New("notfound").Parse(`<h1>This path was not found</h1>`)
-		if err != nil {
-			return
-		}
+	// Frontend handler
+	router.PathPrefix("/assets/").Handler(http.StripPrefix("/assets/", http.FileServer(http.Dir("./web/assets"))))
 
-		err = t.Execute(rw, nil)
-		if err != nil {
-			return
-		}
+	router.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
+		http.ServeFile(rw, r, "./web/index.html")
 	})
 
 	// Map handler

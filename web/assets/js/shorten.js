@@ -3,11 +3,11 @@ const SUBMIT_BUTTON = document.getElementById("submitButton");
 const SHORTENED_PARAGRAPH = document.getElementById("shortened");
 
 const SHORT_PATH = generateRandomString();
-const LONG_URL = URL_INPUT.value;
 
 // Add an event listener for clicking the submit button
 SUBMIT_BUTTON.addEventListener("click", () => {
-    let response = callShortEndpoint(SHORT_PATH, LONG_URL);
+    const LONG_URL = URL_INPUT.value;
+    const response = callShortEndpoint(SHORT_PATH, LONG_URL);
 
     response.then(() => {
         alert("URL shortened!");
@@ -32,7 +32,7 @@ function callShortEndpoint(shortPath, longUrl) {
 
 // Generate a random 6 letter long string
 function generateRandomString() {
-    let characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     let string = "";
 
     for (let i = 0; i < 6; i++) {
