@@ -1,17 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Undershorts Web</title>
-    <link rel="stylesheet" href="assets/css/style.css">
+    <meta charset="utf-8">
+    <title>undershorts</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="assets/css/normalize.css">
+    <link rel="stylesheet" href="assets/css/skeleton.css">
+
+    <link rel="icon" type="image/png" href="assets/images/favicon.png">
 </head>
 <body>
-    <h1>Undershorts</h1>
+    <div class="container">
+        <div class="row">
+            <header>
+                <div class="one-half column" style="margin-top: 15%">
+                    <h1>undershorts</h1>
+                    <h6>Brevity is the soul of wit</h6>
+                </div>
+            </header>
+        </div>
 
-    <input type=url placeholder="URL to short" id="urlInput">
-    <input type="submit" value="Submit" id="submitButton">
-    <p id="shortened"></p>
+        <div class="row">
+            <label for="urlInput">Your URL</label>
+            <form>
+                <div class="two-thirds column">
+                        <input class="two-thirds" type="url" placeholder="example.com" id="urlInput">
+                </div>
+                <div class="one-third column">
+                        <input class="one-third button-primary" type="submit" value="Submit" id="submitButton">
+                </div>
+            </form>
+        </div>
 
+        <div class="row">
+            <table class="u-full-width" hidden>
+                <thead>
+                    <tr>
+                        <th>Short URL</th>
+                        <th>Long URL</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>https://under.shorts/abc </td>
+                        <td>https://github.com/masl/undershorts</td>
+                        <td>2.2.2022</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
     <script src="assets/js/shorten.js"></script>
 </body>
 </html>

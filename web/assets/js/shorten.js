@@ -40,3 +40,5 @@ function generateRandomString() {
     }
     return string;
 }
+
+//TODO: Adjust js to new html layout
