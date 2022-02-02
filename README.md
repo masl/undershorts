@@ -27,3 +27,9 @@ services:
     depends_on:
       - "undershorts_redis"
 ```
+## Environment Variables
+| Environment Variable         | Default Value    |
+|------------------------------|------------------|
+| `UNDERSHORTS_WEB_ADDRESS`    | `0.0.0.0:8000`   |
+| `UNDERSHORTS_REDIS_ADDRESS`  | `127.0.0.1:6379` |
+| `UNDERSHORTS_REDIS_PASSWORD` | ` `              |
