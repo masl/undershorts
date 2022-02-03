@@ -1,17 +1,24 @@
 const URL_INPUT = document.getElementById("urlInput");
 const SUBMIT_BUTTON = document.getElementById("submitButton");
-const SHORTENED_PARAGRAPH = document.getElementById("shortened");
-
-const SHORT_PATH = generateRandomString();
+const URL_TABLE = document.getElementById("urlTable")
 
 // Add an event listener for clicking the submit button
 SUBMIT_BUTTON.addEventListener("click", () => {
+    const SHORT_PATH = generateRandomString();
     const LONG_URL = URL_INPUT.value;
-    const response = callShortEndpoint(SHORT_PATH, LONG_URL);
+    const RESPONSE = callShortEndpoint(SHORT_PATH, LONG_URL);
 
-    response.then(() => {
-        alert("URL shortened!");
-        SHORTENED_PARAGRAPH.innerHTML = location.origin + "/" + SHORT_PATH;
+    RESPONSE.then(() => {
+        // New table row
+        const NEW_ROW = URL_TABLE.insertRow();
+        let newCell = NEW_ROW.insertCell();
+        newCell.appendChild(document.createTextNode(location.origin + "/" + SHORT_PATH));
+
+        newCell = NEW_ROW.insertCell();
+        newCell.appendChild(document.createTextNode(LONG_URL));
+
+        // Change table visibility
+        URL_TABLE.removeAttribute("hidden");
     });
 });
 
@@ -32,13 +39,12 @@ function callShortEndpoint(shortPath, longUrl) {
 
 // Generate a random 6 letter long string
 function generateRandomString() {
-    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    let string = "";
+    const CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    let randomString = "";
 
     for (let i = 0; i < 6; i++) {
-        string += characters.charAt(Math.floor(Math.random() * characters.length));
+        randomString += CHARACTERS.charAt(Math.floor(Math.random() * CHARACTERS.length));
     }
-    return string;
-}
 
-//TODO: Adjust js to new html layout
+    return randomString;
+}

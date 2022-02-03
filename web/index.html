@@ -29,30 +29,24 @@
         <div class="row">
             <label for="urlInput">Your URL</label>
             <form>
-                <div class="two-thirds column">
-                        <input class="two-thirds" type="url" placeholder="example.com" id="urlInput">
+                <div class="six columns">
+                    <input class="u-full-width" type="url" placeholder="example.com" id="urlInput">
                 </div>
-                <div class="one-third column">
-                        <input class="one-third button-primary" type="submit" value="Submit" id="submitButton">
+                <div class="six columns">
+                    <input class="button-primary" type="button" value="Submit" id="submitButton">
                 </div>
             </form>
         </div>
 
         <div class="row">
-            <table class="u-full-width" hidden>
+            <table class="u-full-width" id="urlTable" hidden>
                 <thead>
                     <tr>
                         <th>Short URL</th>
                         <th>Long URL</th>
-                        <th>Date</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>https://under.shorts/abc </td>
-                        <td>https://github.com/masl/undershorts</td>
-                        <td>2.2.2022</td>
-                    </tr>
                 </tbody>
             </table>
         </div>
