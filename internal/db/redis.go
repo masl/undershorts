@@ -12,7 +12,7 @@ import (
 
 // New redis client
 func New() *redis.Client {
-	redisOptions, err := redis.ParseURL(GetEnv("UNDERSHORTS_REDIS_URL", "redis://:qwerty@localhost:6379"))
+	redisOptions, err := redis.ParseURL(GetEnv("UNDERSHORTS_REDIS_URL", "redis://:PASSWORD@undershorts_redis:6379"))
 	if err != nil {
 		panic(err)
 	}
