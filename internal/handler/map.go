@@ -1,13 +1,16 @@
 package handler
 
-import "net/http"
+import (
+	"net/http"
+	"strings"
+)
 
 // Map path keys from map to URL values
-func MapHandler(pathsToUrls map[string]string, fallback http.Handler) http.HandlerFunc {
+func MapHandler(pathsToURLS map[string]string, fallback http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		longPath, exists := pathsToUrls[r.RequestURI]
+		url, exists := pathsToURLS[strings.ReplaceAll(r.RequestURI, "/", "")]
 		if exists {
-			http.Redirect(w, r, longPath, http.StatusFound)
+			http.Redirect(w, r, url, http.StatusFound)
 		} else {
 			fallback.ServeHTTP(w, r)
 		}
