@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"strings"
 	"time"
@@ -11,16 +12,13 @@ import (
 
 // New redis client
 func New() *redis.Client {
-	address, err := redis.ParseURL(GetEnv("UNDERSHORTS_REDIS_ADDRESS", "127.0.0.1:6379"))
+	redisOptions, err := redis.ParseURL(GetEnv("UNDERSHORTS_REDIS_URL", "redis://:qwerty@localhost:6379"))
 	if err != nil {
 		panic(err)
 	}
 
-	return redis.NewClient(&redis.Options{
-		Addr:     address.Addr,
-		Password: GetEnv("UNDERSHORTS_REDIS_PASSWORD", ""),
-		DB:       0,
-	})
+	fmt.Println("Starting redis on", redisOptions.Addr)
+	return redis.NewClient(redisOptions)
 }
 
 var ctx = context.Background()

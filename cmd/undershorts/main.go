@@ -11,7 +11,6 @@ import (
 func main() {
 	// Create redis
 	db.RedisClient = db.New()
-	fmt.Println("Starting redis on", db.GetEnv("UNDERSHORTS_REDIS_ADDRESS", "127.0.0.1:6379"))
 	err := db.RedisClient.Ping(context.Background()).Err()
 	if err != nil {
 		fmt.Println("Problem with redis connection:", err)

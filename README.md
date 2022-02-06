@@ -20,16 +20,14 @@ services:
     image: "ghcr.io/masl/undershorts:latest"
     container_name: "undershorts"
     environment:
-      UNDERSHORTS_REDIS_ADDRESS: "127.0.0.1:6379"
-      UNDERSHORTS_REDIS_PASSWORD: "YOUR_REDIS_PASSWORD"
+      UNDERSHORTS_REDIS_URL: "redis://:qwerty@localhost:6379"
       UNDERSHORTS_WEB_ADDRESS: "0.0.0.0.8000"
     network_mode: "container:undershorts_redis"
     depends_on:
       - "undershorts_redis"
 ```
 ## Environment Variables
-| Environment Variable         | Default Value    |
-|------------------------------|------------------|
-| `UNDERSHORTS_WEB_ADDRESS`    | `0.0.0.0:8000`   |
-| `UNDERSHORTS_REDIS_ADDRESS`  | `127.0.0.1:6379` |
-| `UNDERSHORTS_REDIS_PASSWORD` | ` `              |
+| Environment Variable      | Default Value                    |
+|---------------------------|----------------------------------|
+| `UNDERSHORTS_WEB_ADDRESS` | `0.0.0.0:8000`                   |
+| `UNDERSHORTS_REDIS_URL`   | `redis://:qwerty@localhost:6379` |
