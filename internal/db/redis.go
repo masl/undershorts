@@ -2,7 +2,7 @@ package db
 
 import (
 	"context"
-	"fmt"
+	"log"
 	"os"
 	"strings"
 	"time"
@@ -17,7 +17,7 @@ func New() *redis.Client {
 		panic(err)
 	}
 
-	fmt.Println("Starting redis on", redisOptions.Addr)
+	log.Println("Starting redis on", redisOptions.Addr)
 	return redis.NewClient(redisOptions)
 }
 

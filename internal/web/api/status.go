@@ -10,6 +10,6 @@ import (
 // GET status
 func StatusEndpoint(router *mux.Router) {
 	router.HandleFunc("/status", func(rw http.ResponseWriter, r *http.Request) {
-		json.NewEncoder(rw).Encode(map[string]bool{"ok": true})
+		_ = json.NewEncoder(rw).Encode(map[string]bool{"ok": true})
 	}).Methods("GET")
 }
