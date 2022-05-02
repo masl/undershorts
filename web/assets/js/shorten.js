@@ -4,6 +4,9 @@ const URL_TABLE = document.getElementById("urlTable")
 
 // Add an event listener for clicking the submit button
 SUBMIT_BUTTON.addEventListener("click", () => {
+    // Check URL input validity
+    if (!URL_INPUT.checkValidity()) return;
+
     const SHORT_PATH = generateRandomString();
     const LONG_URL = URL_INPUT.value;
     const RESPONSE = callShortEndpoint(SHORT_PATH, LONG_URL);
@@ -23,8 +26,8 @@ SUBMIT_BUTTON.addEventListener("click", () => {
 });
 
 // Make a request on the shortening API endpoint
-function callShortEndpoint(shortPath, longUrl) {
-    return fetch(location.origin + "/api/shorten", {
+async function callShortEndpoint(shortPath, longUrl) {
+    return await fetch(location.origin + "/api/shorten", {
         //mode: "no-cors",
         method: "POST",
         headers: {

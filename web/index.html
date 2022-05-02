@@ -28,12 +28,12 @@
 
         <div class="row">
             <label for="urlInput">Your URL</label>
-            <form>
+            <form onsubmit="return false;">
                 <div class="six columns">
-                    <input class="u-full-width" type="url" placeholder="example.com" id="urlInput">
+                    <input class="u-full-width" type="url" placeholder="example.com" id="urlInput" required>
                 </div>
                 <div class="six columns">
-                    <input class="button-primary" type="button" value="Submit" id="submitButton">
+                    <input class="button-primary" type="submit" value="Submit" id="submitButton">
                 </div>
             </form>
         </div>
