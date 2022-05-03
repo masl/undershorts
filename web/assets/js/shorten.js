@@ -14,8 +14,15 @@ SUBMIT_BUTTON.addEventListener("click", () => {
     RESPONSE.then(() => {
         // New table row
         const NEW_ROW = URL_TABLE.insertRow();
+        const SHORT_URL = location.origin + "/" + SHORT_PATH;
         let newCell = NEW_ROW.insertCell();
-        newCell.appendChild(document.createTextNode(location.origin + "/" + SHORT_PATH));
+        newCell.appendChild(document.createTextNode(SHORT_URL));
+
+        // Copy on click
+        newCell.addEventListener("click", () => {
+            console.log("clicked.")
+            navigator.clipboard.writeText(SHORT_URL);
+        })
 
         newCell = NEW_ROW.insertCell();
         newCell.appendChild(document.createTextNode(LONG_URL));
