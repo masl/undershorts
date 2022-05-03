@@ -1,6 +1,7 @@
 const URL_INPUT = document.getElementById("urlInput");
 const SUBMIT_BUTTON = document.getElementById("submitButton");
 const URL_TABLE = document.getElementById("urlTable")
+const NOTIFICATION = document.getElementById("alert")
 
 // Add an event listener for clicking the submit button
 SUBMIT_BUTTON.addEventListener("click", () => {
@@ -19,9 +20,13 @@ SUBMIT_BUTTON.addEventListener("click", () => {
         newCell.appendChild(document.createTextNode(SHORT_URL));
 
         // Copy on click
+        newCell.style.cursor = "copy";
         newCell.addEventListener("click", () => {
-            console.log("clicked.")
-            navigator.clipboard.writeText(SHORT_URL);
+            navigator.clipboard.writeText(SHORT_URL).then(() => {
+                showNotification()
+            }, reason => {
+                console.log("Rejected:" + reason);
+            });
         })
 
         newCell = NEW_ROW.insertCell();
@@ -57,4 +62,16 @@ function generateRandomString() {
     }
 
     return randomString;
+}
+
+function showNotification() {
+
+    NOTIFICATION.classList.remove("alertFadeout");
+    NOTIFICATION.classList.add("alertFadein");
+
+    setTimeout(() => {
+        NOTIFICATION.classList.remove("alertFadein");
+        NOTIFICATION.classList.add("alertFadeout");
+        //NOTIFICATION.style.display = "none";
+    }, 2000)
 }
