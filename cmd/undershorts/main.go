@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"log"
 
 	"github.com/masl/undershorts/internal/db"
 	"github.com/masl/undershorts/internal/web"
@@ -13,7 +13,7 @@ func main() {
 	db.RedisClient = db.New()
 	err := db.RedisClient.Ping(context.Background()).Err()
 	if err != nil {
-		fmt.Println("Problem with redis connection:", err)
+		log.Println("A Problem with the redis connection occurred:", err)
 		return
 	}
 

@@ -1,9 +1,13 @@
 const URL_INPUT = document.getElementById("urlInput");
 const SUBMIT_BUTTON = document.getElementById("submitButton");
 const URL_TABLE = document.getElementById("urlTable")
+const NOTIFICATION = document.getElementById("alert")
 
 // Add an event listener for clicking the submit button
 SUBMIT_BUTTON.addEventListener("click", () => {
+    // Check URL input validity
+    if (!URL_INPUT.checkValidity()) return;
+
     const SHORT_PATH = generateRandomString();
     const LONG_URL = URL_INPUT.value;
     const RESPONSE = callShortEndpoint(SHORT_PATH, LONG_URL);
@@ -11,8 +15,19 @@ SUBMIT_BUTTON.addEventListener("click", () => {
     RESPONSE.then(() => {
         // New table row
         const NEW_ROW = URL_TABLE.insertRow();
+        const SHORT_URL = location.origin + "/" + SHORT_PATH;
         let newCell = NEW_ROW.insertCell();
-        newCell.appendChild(document.createTextNode(location.origin + "/" + SHORT_PATH));
+        newCell.appendChild(document.createTextNode(SHORT_URL));
+
+        // Copy on click
+        newCell.style.cursor = "copy";
+        newCell.addEventListener("click", () => {
+            navigator.clipboard.writeText(SHORT_URL).then(() => {
+                showNotification()
+            }, reason => {
+                console.log("Rejected:" + reason);
+            });
+        })
 
         newCell = NEW_ROW.insertCell();
         newCell.appendChild(document.createTextNode(LONG_URL));
@@ -23,8 +38,8 @@ SUBMIT_BUTTON.addEventListener("click", () => {
 });
 
 // Make a request on the shortening API endpoint
-function callShortEndpoint(shortPath, longUrl) {
-    return fetch(location.origin + "/api/shorten", {
+async function callShortEndpoint(shortPath, longUrl) {
+    return await fetch(location.origin + "/api/shorten", {
         //mode: "no-cors",
         method: "POST",
         headers: {
@@ -47,4 +62,16 @@ function generateRandomString() {
     }
 
     return randomString;
+}
+
+function showNotification() {
+
+    NOTIFICATION.classList.remove("alertFadeout");
+    NOTIFICATION.classList.add("alertFadein");
+
+    setTimeout(() => {
+        NOTIFICATION.classList.remove("alertFadein");
+        NOTIFICATION.classList.add("alertFadeout");
+        //NOTIFICATION.style.display = "none";
+    }, 2000)
 }

@@ -1,12 +1,12 @@
 package web
 
 import (
-	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/masl/undershorts/internal/db"
 	"github.com/masl/undershorts/internal/handler"
 	"github.com/masl/undershorts/internal/web/api"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 )
@@ -80,6 +80,6 @@ func Serve() (err error) {
 		Addr:    webAddress,
 	}
 
-	fmt.Println("Starting web server on", webAddress)
+	log.Println("Starting web server on", webAddress)
 	return srv.ListenAndServe()
 }
