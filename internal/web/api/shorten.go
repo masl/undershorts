@@ -21,7 +21,7 @@ type PostBody struct {
 func ShortenEndpoint(router *mux.Router, mux *mux.Router) {
 	// POST shorts data
 	router.HandleFunc("/shorten", func(rw http.ResponseWriter, r *http.Request) {
-		// Set up authorization
+		// TODO: Set up authorization
 
 		/*
 			un, pw, ok := r.BasicAuth()
@@ -60,27 +60,43 @@ func ShortenEndpoint(router *mux.Router, mux *mux.Router) {
 			latestErr = err
 		}
 
+		log.Println("Shorten request sent:", pb.ShortPath)
+
 		// Check path existence
 		if db.Exist(pb.ShortPath) {
 			latestErr = fmt.Errorf("path already exists")
 		}
 
-		// Format short path
-		pb.ShortPath = strings.ReplaceAll(pb.ShortPath, "/", "")
-		log.Println("Shorten request sent:", pb.ShortPath)
-
-		// Write data to redis
-		err = db.SetURL(pb.ShortPath, pb.LongUrl)
-		if err != nil {
-			log.Println("Failed writing to redis DB:", err)
-			latestErr = err
+		// Validate short path
+		if pb.ShortPath == "" {
+			latestErr = fmt.Errorf("short path cannot be empty")
 		}
 
-		// Write creation time to redis
-		err = db.SetURL(pb.ShortPath+":time", time.Now().Format(time.RFC3339))
-		if err != nil {
-			log.Println("Failed writing to redis DB:", err)
-			latestErr = err
+		// Validate long url
+		if pb.LongUrl == "" {
+			latestErr = fmt.Errorf("long url cannot be empty")
+		}
+
+		// Validate short path length
+		if len(pb.ShortPath) > 20 {
+			latestErr = fmt.Errorf("short path cannot be longer than 20 characters")
+		}
+
+		// Validate long url length
+		if len(pb.LongUrl) > 1000 {
+			latestErr = fmt.Errorf("long url cannot be longer than 1000 characters")
+		}
+
+		// Validate long url protocol
+		if !strings.HasPrefix(pb.LongUrl, "http://") && !strings.HasPrefix(pb.LongUrl, "https://") {
+			latestErr = fmt.Errorf("long url must start with http:// or https://")
+		}
+
+		// Validate short path characters
+		for _, c := range pb.ShortPath {
+			if !((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')) {
+				latestErr = fmt.Errorf("short path must only contain alphanumeric characters")
+			}
 		}
 
 		if latestErr != nil {
@@ -92,6 +108,20 @@ func ShortenEndpoint(router *mux.Router, mux *mux.Router) {
 			}
 			log.Println("Failed linking", pb.ShortPath, "to", pb.LongUrl, ":", latestErr)
 		} else {
+			// Write data to redis
+			err = db.SetURL(pb.ShortPath, pb.LongUrl)
+			if err != nil {
+				log.Println("Failed writing to redis DB:", err)
+				latestErr = err
+			}
+
+			// Write creation time to redis
+			err = db.SetURL(pb.ShortPath+":time", time.Now().Format(time.RFC3339))
+			if err != nil {
+				log.Println("Failed writing to redis DB:", err)
+				latestErr = err
+			}
+
 			rw.WriteHeader(http.StatusOK)
 			_ = json.NewEncoder(rw).Encode(map[string]string{"shorten": "ok"})
 
