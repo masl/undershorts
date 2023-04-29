@@ -43,7 +43,7 @@ func Serve() (err error) {
 	apiRouter := router.PathPrefix("/api").Subrouter()
 
 	// Register API Endpoints
-	api.StatusEndpoint(apiRouter)
+	api.HealthCheckEndpoint(apiRouter)
 	api.PathEndpoint(apiRouter)
 	api.ShortenEndpoint(apiRouter, router)
 
