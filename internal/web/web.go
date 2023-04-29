@@ -1,14 +1,13 @@
 package web
 
 import (
+	"log"
+	"net/http"
+
 	"github.com/gorilla/mux"
 	"github.com/masl/undershorts/internal/db"
 	"github.com/masl/undershorts/internal/handler"
 	"github.com/masl/undershorts/internal/web/api"
-	"io/ioutil"
-	"log"
-	"net/http"
-	"os"
 )
 
 func Serve() (err error) {
@@ -29,38 +28,13 @@ func Serve() (err error) {
 
 	mapHandler := handler.MapHandler(pathsToUrls, router)
 
-	// YAML handler
-	defaultYAMLPath := "./paths.yaml"
-
-	var yamlContent []byte
-	var yamlHandler http.Handler
-
-	// Check existence of YAML file
-	fileinfo, err := os.Stat(defaultYAMLPath)
-	if os.IsNotExist(err) || fileinfo.IsDir() {
-		yamlHandler, err = handler.YAMLHandler(make([]byte, 0), mapHandler)
-		if err != nil {
-			return
-		}
-	} else {
-		yamlContent, err = ioutil.ReadFile(defaultYAMLPath)
-		if err != nil {
-			return
-		}
-
-		yamlHandler, err = handler.YAMLHandler([]byte(yamlContent), mapHandler)
-		if err != nil {
-			return
-		}
-	}
-
 	// Redis handler
 	redisContent, err := db.GetAllURLS()
 	if err != nil {
 		return
 	}
 
-	redisHandler, err := handler.RedisHandler(redisContent, yamlHandler)
+	redisHandler, err := handler.RedisHandler(redisContent, mapHandler)
 	if err != nil {
 		return
 	}
