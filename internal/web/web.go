@@ -1,59 +1,76 @@
 package web
 
 import (
-	"log"
 	"net/http"
 
-	"github.com/gorilla/mux"
-	"github.com/masl/undershorts/internal/db"
-	"github.com/masl/undershorts/internal/handler"
-	"github.com/masl/undershorts/internal/web/api"
+	"github.com/gin-gonic/gin"
+	"github.com/masl/undershorts/internal/utils"
 )
 
 func Serve() (err error) {
-	router := mux.NewRouter()
+	// router := mux.NewRouter()
 
-	// Frontend handler
-	router.PathPrefix("/assets/").Handler(http.StripPrefix("/assets/", http.FileServer(http.Dir("./web/assets"))))
+	// Set gin mode
+	gin.SetMode(gin.DebugMode)
 
-	router.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
-		http.ServeFile(rw, r, "./web/index.html")
+	router := gin.Default()
+
+	// Serve static files
+	router.Static("/assets", "./web/assets")
+
+	router.LoadHTMLFiles("./web/index.html")
+	router.GET("/", func(ctx *gin.Context) {
+		ctx.HTML(http.StatusOK, "index.html", nil)
 	})
 
-	// Map handler
 	pathsToUrls := map[string]string{
 		"undershorts": "https://github.com/masl/undershorts",
 		"author":      "https://github.com/masl",
 	}
 
-	mapHandler := handler.MapHandler(pathsToUrls, router)
+	router.GET("/:path", func(ctx *gin.Context) {
+		path := ctx.Param("path")
 
-	// Redis handler
-	redisContent, err := db.GetAllURLS()
-	if err != nil {
-		return
-	}
+		for key := range pathsToUrls {
+			if key == path {
+				ctx.Redirect(http.StatusFound, pathsToUrls[key])
+			}
+		}
+	})
 
-	redisHandler, err := handler.RedisHandler(redisContent, mapHandler)
-	if err != nil {
-		return
-	}
+	webAddress := utils.GetEnv("UNDERSHORTS_WEB_ADDRESS", "0.0.0.0:8000")
+	return router.Run(webAddress)
 
-	// API handler
-	apiRouter := router.PathPrefix("/api").Subrouter()
+	/*
+		mapHandler := handler.MapHandler(pathsToUrls, router)
 
-	// Register API Endpoints
-	api.HealthCheckEndpoint(apiRouter)
-	api.PathEndpoint(apiRouter)
-	api.ShortenEndpoint(apiRouter, router)
+		// Redis handler
+		redisContent, err := db.GetAllURLS()
+		if err != nil {
+			return
+		}
 
-	// Start http server
-	webAddress := db.GetEnv("UNDERSHORTS_WEB_ADDRESS", "0.0.0.0:8000")
-	srv := &http.Server{
-		Handler: redisHandler,
-		Addr:    webAddress,
-	}
+		redisHandler, err := handler.RedisHandler(redisContent, mapHandler)
+		if err != nil {
+			return
+		}
 
-	log.Println("Starting web server on", webAddress)
-	return srv.ListenAndServe()
+		// API handler
+		apiRouter := router.PathPrefix("/api").Subrouter()
+
+		// Register API Endpoints
+		api.HealthCheckEndpoint(apiRouter)
+		api.PathEndpoint(apiRouter)
+		api.ShortenEndpoint(apiRouter, router)
+
+		// Start http server
+		webAddress := db.GetEnv("UNDERSHORTS_WEB_ADDRESS", "0.0.0.0:8000")
+		srv := &http.Server{
+			Handler: redisHandler,
+			Addr:    webAddress,
+		}
+
+		log.Println("Starting web server on", webAddress)
+		return srv.ListenAndServe()
+	*/
 }
