@@ -1,9 +1,33 @@
-package api
+package controllers
 
-// type PostBody struct {
-// 	LongUrl   string `json:"longUrl"`
-// 	ShortPath string `json:"shortPath"`
-// }
+import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/masl/undershorts/internal/db"
+)
+
+type PostBody struct {
+	LongUrl   string `json:"longUrl"`
+	ShortPath string `json:"shortPath"`
+}
+
+// POST shorten
+func PostShorten(ctx *gin.Context) {
+	var requestBody PostBody
+
+	if err := ctx.BindJSON(&requestBody); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
+
+	if err := db.SetURL(requestBody.ShortPath, requestBody.LongUrl); err != nil {
+		ctx.Writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	ctx.Writer.WriteHeader(http.StatusCreated)
+}
 
 // func ShortenEndpoint(router *mux.Router, mux *mux.Router) {
 // 	// POST shorts data

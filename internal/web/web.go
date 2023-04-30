@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/masl/undershorts/internal/db"
 	"github.com/masl/undershorts/internal/utils"
+	"github.com/masl/undershorts/internal/web/controllers"
 )
 
 func Serve() (err error) {
@@ -57,22 +58,8 @@ func Serve() (err error) {
 	{
 		v1 := api.Group("/v1")
 		{
-			v1.POST("/shorten", func(ctx *gin.Context) {
-				var requestBody PostBody
-
-				if err := ctx.BindJSON(&requestBody); err != nil {
-					ctx.Writer.WriteHeader(http.StatusInternalServerError)
-					return
-				}
-
-				if err := db.SetURL(requestBody.ShortPath, requestBody.LongUrl); err != nil {
-					ctx.Writer.WriteHeader(http.StatusInternalServerError)
-					return
-				}
-
-				ctx.Writer.WriteHeader(http.StatusCreated)
-				return
-			})
+			v1.GET("/health", controllers.GetHealth)
+			v1.POST("/shorten", controllers.PostShorten)
 		}
 	}
 
