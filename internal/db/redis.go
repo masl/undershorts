@@ -3,16 +3,15 @@ package db
 import (
 	"context"
 	"log"
-	"os"
-	"strings"
 	"time"
 
 	"github.com/go-redis/redis/v8"
+	"github.com/masl/undershorts/internal/utils"
 )
 
 // New redis client
 func New() *redis.Client {
-	redisOptions, err := redis.ParseURL(GetEnv("UNDERSHORTS_REDIS_URL", "redis://:PASSWORD@undershorts_redis:6379"))
+	redisOptions, err := redis.ParseURL(utils.GetEnv("UNDERSHORTS_REDIS_URL", "redis://:PASSWORD@undershorts_redis:6379"))
 	if err != nil {
 		panic(err)
 	}
@@ -59,26 +58,4 @@ func GetURL(path string) (url string, err error) {
 		return
 	}
 	return
-}
-
-// Return all urls
-func GetAllURLS() (allKeys []string, err error) {
-	iter := RedisClient.Scan(ctx, 0, "*", 0).Iterator()
-	for iter.Next(ctx) {
-		if !strings.HasSuffix(iter.Val(), ":time") {
-			allKeys = append(allKeys, iter.Val())
-		}
-	}
-	if err = iter.Err(); err != nil {
-		return
-	}
-	return
-}
-
-// Get env with fallback if env empty
-func GetEnv(key, fallback string) string {
-	if value, ok := os.LookupEnv(key); ok {
-		return value
-	}
-	return fallback
 }
