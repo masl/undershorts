@@ -47,7 +47,7 @@ func Serve() (err error) {
 		v1 := api.Group("/v1")
 		{
 			v1.GET("/health", controllers.GetHealth)
-			// TODO: get path
+			v1.GET("/path/:path", controllers.GetPath)
 			v1.POST("/shorten", controllers.PostShorten)
 		}
 	}
