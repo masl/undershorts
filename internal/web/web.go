@@ -1,85 +1,57 @@
 package web
 
 import (
-	"github.com/gorilla/mux"
-	"github.com/masl/undershorts/internal/db"
-	"github.com/masl/undershorts/internal/handler"
-	"github.com/masl/undershorts/internal/web/api"
-	"io/ioutil"
-	"log"
 	"net/http"
-	"os"
+
+	"github.com/gin-gonic/gin"
+	"github.com/masl/undershorts/internal/db"
+	"github.com/masl/undershorts/internal/utils"
+	"github.com/masl/undershorts/internal/web/controllers"
 )
 
 func Serve() (err error) {
-	router := mux.NewRouter()
+	// Set gin mode
+	gin.SetMode(gin.DebugMode)
 
-	// Frontend handler
-	router.PathPrefix("/assets/").Handler(http.StripPrefix("/assets/", http.FileServer(http.Dir("./web/assets"))))
+	router := gin.Default()
 
-	router.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
-		http.ServeFile(rw, r, "./web/index.html")
+	// Serve static files
+	router.Static("/assets", "./web/assets")
+
+	router.LoadHTMLFiles("./web/index.html")
+	router.GET("/", func(ctx *gin.Context) {
+		ctx.HTML(http.StatusOK, "index.html", nil)
 	})
 
-	// Map handler
-	pathsToUrls := map[string]string{
-		"undershorts": "https://github.com/masl/undershorts",
-		"author":      "https://github.com/masl",
-	}
+	// Route shortening redirect endpoint
+	router.GET("/:path", func(ctx *gin.Context) {
+		path := ctx.Param("path")
 
-	mapHandler := handler.MapHandler(pathsToUrls, router)
-
-	// YAML handler
-	defaultYAMLPath := "./paths.yaml"
-
-	var yamlContent []byte
-	var yamlHandler http.Handler
-
-	// Check existence of YAML file
-	fileinfo, err := os.Stat(defaultYAMLPath)
-	if os.IsNotExist(err) || fileinfo.IsDir() {
-		yamlHandler, err = handler.YAMLHandler(make([]byte, 0), mapHandler)
-		if err != nil {
-			return
-		}
-	} else {
-		yamlContent, err = ioutil.ReadFile(defaultYAMLPath)
-		if err != nil {
+		if !db.Exist(path) {
+			ctx.Writer.WriteHeader(http.StatusNotFound)
 			return
 		}
 
-		yamlHandler, err = handler.YAMLHandler([]byte(yamlContent), mapHandler)
+		url, err := db.GetURL(path)
 		if err != nil {
+			ctx.Writer.WriteHeader(http.StatusInternalServerError)
 			return
+		}
+
+		ctx.Redirect(http.StatusFound, url)
+	})
+
+	// Route API endpoints
+	api := router.Group("/api")
+	{
+		v1 := api.Group("/v1")
+		{
+			v1.GET("/health", controllers.GetHealth)
+			v1.GET("/path/:path", controllers.GetPath)
+			v1.POST("/shorten", controllers.PostShorten)
 		}
 	}
 
-	// Redis handler
-	redisContent, err := db.GetAllURLS()
-	if err != nil {
-		return
-	}
-
-	redisHandler, err := handler.RedisHandler(redisContent, yamlHandler)
-	if err != nil {
-		return
-	}
-
-	// API handler
-	apiRouter := router.PathPrefix("/api").Subrouter()
-
-	// Register API Endpoints
-	api.StatusEndpoint(apiRouter)
-	api.PathEndpoint(apiRouter)
-	api.ShortenEndpoint(apiRouter, router)
-
-	// Start http server
-	webAddress := db.GetEnv("UNDERSHORTS_WEB_ADDRESS", "0.0.0.0:8000")
-	srv := &http.Server{
-		Handler: redisHandler,
-		Addr:    webAddress,
-	}
-
-	log.Println("Starting web server on", webAddress)
-	return srv.ListenAndServe()
+	webAddress := utils.GetEnv("UNDERSHORTS_WEB_ADDRESS", "0.0.0.0:8000")
+	return router.Run(webAddress)
 }

@@ -39,7 +39,7 @@ SUBMIT_BUTTON.addEventListener("click", () => {
 
 // Make a request on the shortening API endpoint
 async function callShortEndpoint(shortPath, longUrl) {
-    return await fetch(location.origin + "/api/shorten", {
+    return await fetch(location.origin + "/api/v1/shorten", {
         //mode: "no-cors",
         method: "POST",
         headers: {
