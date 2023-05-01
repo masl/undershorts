@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -8,108 +9,43 @@ import (
 )
 
 type PostBody struct {
-	LongUrl   string `json:"longUrl"`
-	ShortPath string `json:"shortPath"`
+	LongUrl   string `json:"longUrl" binding:"required,url"`
+	ShortPath string `json:"shortPath" binding:"required,alphanum"`
 }
 
 // POST shorten
 func PostShorten(ctx *gin.Context) {
 	var requestBody PostBody
 
+	// TODO: auth middleware
+
+	// Read and validate request body
 	if err := ctx.BindJSON(&requestBody); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
+	log.Println("Shorten request sent:", requestBody.LongUrl)
+
+	// Check path existence
+	if db.Exist(requestBody.ShortPath) {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Path already exists"})
+		return
+	}
+
+	// Write content to database
 	if err := db.SetURL(requestBody.ShortPath, requestBody.LongUrl); err != nil {
 		ctx.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
+	// Content written sucessfully
 	ctx.Writer.WriteHeader(http.StatusCreated)
 }
 
 // func ShortenEndpoint(router *mux.Router, mux *mux.Router) {
 // 	// POST shorts data
 // 	router.HandleFunc("/shorten", func(rw http.ResponseWriter, r *http.Request) {
-// 		// TODO: Set up authorization
-
-// 		/*
-// 			un, pw, ok := r.BasicAuth()
-// 			if !ok {
-// 				log.Println("Error parsing basic auth")
-// 				rw.WriteHeader(http.StatusUnauthorized)
-// 				return
-// 			}
-
-// 			if un != db.GetEnv("AUTH_USERNAME", "username") {
-// 				log.Println("Error parsing basic auth")
-// 				rw.WriteHeader(http.StatusUnauthorized)
-// 				return
-// 			}
-
-// 			if pw != db.GetEnv("AUTH_PASSWORD", "password") {
-// 				log.Println("Error parsing basic auth")
-// 				rw.WriteHeader(http.StatusUnauthorized)
-// 				return
-// 			}
-// 		*/
-
-// 		var latestErr error
-
-// 		// Read in request data
-// 		b, err := ioutil.ReadAll(r.Body)
-// 		if err != nil {
-// 			log.Println("Failed getting request body:", err)
-// 			latestErr = err
-// 		}
-
-// 		pb := new(PostBody)
-// 		err = json.Unmarshal(b, &pb)
-// 		if err != nil {
-// 			log.Println("Failed parsing request body:", err)
-// 			latestErr = err
-// 		}
-
-// 		log.Println("Shorten request sent:", pb.ShortPath)
-
-// 		// Check path existence
-// 		if db.Exist(pb.ShortPath) {
-// 			latestErr = fmt.Errorf("path already exists")
-// 		}
-
-// 		// Validate short path
-// 		if pb.ShortPath == "" {
-// 			latestErr = fmt.Errorf("short path cannot be empty")
-// 		}
-
-// 		// Validate long url
-// 		if pb.LongUrl == "" {
-// 			latestErr = fmt.Errorf("long url cannot be empty")
-// 		}
-
-// 		// Validate short path length
-// 		if len(pb.ShortPath) > 20 {
-// 			latestErr = fmt.Errorf("short path cannot be longer than 20 characters")
-// 		}
-
-// 		// Validate long url length
-// 		if len(pb.LongUrl) > 1000 {
-// 			latestErr = fmt.Errorf("long url cannot be longer than 1000 characters")
-// 		}
-
-// 		// Validate long url protocol
-// 		if !strings.HasPrefix(pb.LongUrl, "http://") && !strings.HasPrefix(pb.LongUrl, "https://") {
-// 			latestErr = fmt.Errorf("long url must start with http:// or https://")
-// 		}
-
-// 		// Validate short path characters
-// 		for _, c := range pb.ShortPath {
-// 			if !((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')) {
-// 				latestErr = fmt.Errorf("short path must only contain alphanumeric characters")
-// 			}
-// 		}
-
 // 		if latestErr != nil {
 // 			rw.WriteHeader(http.StatusInternalServerError)
 // 			_, err := rw.Write([]byte(latestErr.Error()))
