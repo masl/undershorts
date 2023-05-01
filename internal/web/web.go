@@ -10,9 +10,7 @@ import (
 )
 
 func Serve() (err error) {
-	// router := mux.NewRouter()
-
-	// Sets gin mode
+	// Set gin mode
 	gin.SetMode(gin.DebugMode)
 
 	router := gin.Default()
@@ -25,12 +23,7 @@ func Serve() (err error) {
 		ctx.HTML(http.StatusOK, "index.html", nil)
 	})
 
-	// pathsToUrls := map[string]string{
-	// 	"undershorts": "https://github.com/masl/undershorts",
-	// 	"author":      "https://github.com/masl",
-	// }
-
-	// Routes shortening redirect endpoint
+	// Route shortening redirect endpoint
 	router.GET("/:path", func(ctx *gin.Context) {
 		path := ctx.Param("path")
 
@@ -48,54 +41,17 @@ func Serve() (err error) {
 		ctx.Redirect(http.StatusFound, url)
 	})
 
-	type PostBody struct {
-		LongUrl   string `json:"longUrl"`
-		ShortPath string `json:"shortPath"`
-	}
-
-	// Routes API endpoints
+	// Route API endpoints
 	api := router.Group("/api")
 	{
 		v1 := api.Group("/v1")
 		{
 			v1.GET("/health", controllers.GetHealth)
+			// TODO: get path
 			v1.POST("/shorten", controllers.PostShorten)
 		}
 	}
 
 	webAddress := utils.GetEnv("UNDERSHORTS_WEB_ADDRESS", "0.0.0.0:8000")
 	return router.Run(webAddress)
-
-	// mapHandler := handler.MapHandler(pathsToUrls, router)
-
-	// // Redis handler
-	// redisContent, err := db.GetAllURLS()
-	// if err != nil {
-	// 	return
-	// }
-
-	// redisHandler, err := handler.RedisHandler(redisContent, mapHandler)
-	// if err != nil {
-	// 	return
-	// }
-	/*
-
-		// API handler
-		apiRouter := router.PathPrefix("/api").Subrouter()
-
-		// Register API Endpoints
-		api.HealthCheckEndpoint(apiRouter)
-		api.PathEndpoint(apiRouter)
-		api.ShortenEndpoint(apiRouter, router)
-
-		// Start http server
-		webAddress := db.GetEnv("UNDERSHORTS_WEB_ADDRESS", "0.0.0.0:8000")
-		srv := &http.Server{
-			Handler: redisHandler,
-			Addr:    webAddress,
-		}
-
-		log.Println("Starting web server on", webAddress)
-		return srv.ListenAndServe()
-	*/
 }
