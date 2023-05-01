@@ -1,5 +1,8 @@
 name: docker
 
+env:
+  REGISTRY: ghcr.io
+
 on:
   push:
     branches:
@@ -36,7 +39,7 @@ jobs:
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v1
         with:
-          registry: ghcr.io
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.CR_TOKEN }}
           
@@ -44,7 +47,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: ghcr.io/masl/undershorts:${{ env.STAGING_TAG }}
+          tags: ${{ env.REGISTRY }}/masl/undershorts:${{ env.STAGING_TAG }}
 
   deploy-production:
     runs-on: ubuntu-latest
@@ -72,7 +75,7 @@ jobs:
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v1
         with:
-          registry: ghcr.io
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.CR_TOKEN }}
 
