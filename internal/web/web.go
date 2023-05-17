@@ -69,6 +69,12 @@ func (w *WebServer) Serve() error {
 		auth.POST("/login", w.PostLogin)
 	}
 
+	// Route for testing authentication
+	router.GET("/test", w.Auth, func(ctx *gin.Context) {
+		ctx.Writer.WriteString("Hello, World!")
+		return
+	})
+
 	webAddress := utils.GetEnv("UNDERSHORTS_WEB_ADDRESS", "0.0.0.0:8000")
 	return router.Run(webAddress)
 }
