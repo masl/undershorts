@@ -12,6 +12,7 @@ import (
 type Storage interface {
 	Ping() bool
 	CreateUser(*models.UserRequest) (*models.User, error)
+	GetUserByEmail(string) (*models.User, error)
 }
 
 type PostgresStore struct {
@@ -88,6 +89,39 @@ func (s *PostgresStore) CreateUser(userReq *models.UserRequest) (*models.User, e
 
 	// return created user
 	rows.Next()
+	user := &models.User{}
+	err = rows.Scan(
+		&user.Id,
+		&user.Email,
+		&user.PasswordHash,
+		&user.CreatedAt,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+// gets user by email
+func (s *PostgresStore) GetUserByEmail(email string) (*models.User, error) {
+	query := `SELECT * FROM users WHERE email = $1`
+
+	// run query
+	rows, err := s.db.Query(
+		query,
+		email,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	// return user
+	found := rows.Next()
+	if !found {
+		return nil, fmt.Errorf("no user found for email: %s", email)
+	}
+
 	user := &models.User{}
 	err = rows.Scan(
 		&user.Id,
