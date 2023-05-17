@@ -5,11 +5,21 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/masl/undershorts/internal/db"
+	"github.com/masl/undershorts/internal/storage"
 	"github.com/masl/undershorts/internal/utils"
-	"github.com/masl/undershorts/internal/web/controllers"
 )
 
-func Serve() (err error) {
+type WebServer struct {
+	store storage.Storage
+}
+
+func NewWebServer(store storage.Storage) *WebServer {
+	return &WebServer{
+		store: store,
+	}
+}
+
+func (w *WebServer) Serve() error {
 	// Set gin mode
 	gin.SetMode(gin.DebugMode)
 
@@ -46,17 +56,17 @@ func Serve() (err error) {
 	{
 		v1 := api.Group("/v1")
 		{
-			v1.GET("/health", controllers.GetHealth)
-			v1.GET("/path/:path", controllers.GetPath)
-			v1.POST("/shorten", controllers.PostShorten)
+			v1.GET("/health", w.GetHealth)
+			v1.GET("/path/:path", w.GetPath)
+			v1.POST("/shorten", w.PostShorten)
 		}
 	}
 
 	// Route auth endpoints
 	auth := router.Group("/auth")
 	{
-		auth.POST("/singup", controllers.PostSingup)
-		auth.POST("/login", controllers.PostLogin)
+		auth.POST("/singup", w.PostSignup)
+		auth.POST("/login", w.PostLogin)
 	}
 
 	webAddress := utils.GetEnv("UNDERSHORTS_WEB_ADDRESS", "0.0.0.0:8000")

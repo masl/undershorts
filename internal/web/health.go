@@ -1,4 +1,4 @@
-package controllers
+package web
 
 import (
 	"net/http"
@@ -7,7 +7,7 @@ import (
 )
 
 // GET health
-func GetHealth(ctx *gin.Context) {
+func (w *WebServer) GetHealth(ctx *gin.Context) {
 	// TODO: Add DB health checks
 	ctx.JSON(http.StatusOK, gin.H{"status": "ok"})
 }

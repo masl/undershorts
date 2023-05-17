@@ -34,5 +34,6 @@ func main() {
 	}
 
 	// Serve http server
+	web := web.NewWebServer(pg)
 	panic(web.Serve())
 }

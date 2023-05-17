@@ -1,4 +1,4 @@
-package controllers
+package web
 
 import (
 	"log"
@@ -14,7 +14,7 @@ type PostBody struct {
 }
 
 // POST shorten
-func PostShorten(ctx *gin.Context) {
+func (w *WebServer) PostShorten(ctx *gin.Context) {
 	var requestBody PostBody
 
 	// TODO: auth middleware

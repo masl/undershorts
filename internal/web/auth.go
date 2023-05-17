@@ -1,4 +1,4 @@
-package controllers
+package web
 
 import (
 	"net/http"
@@ -6,12 +6,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func PostSingup(ctx *gin.Context) {
+func (w *WebServer) PostSignup(ctx *gin.Context) {
 	ctx.JSON(http.StatusInternalServerError, gin.H{"error": "not implemented"})
 	return
 }
 
-func PostLogin(ctx *gin.Context) {
+func (w *WebServer) PostLogin(ctx *gin.Context) {
 	ctx.JSON(http.StatusInternalServerError, gin.H{"error": "not implemented"})
 	return
 }

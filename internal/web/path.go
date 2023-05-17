@@ -1,4 +1,4 @@
-package controllers
+package web
 
 import (
 	"net/http"
@@ -8,7 +8,7 @@ import (
 )
 
 // GET path
-func GetPath(ctx *gin.Context) {
+func (w *WebServer) GetPath(ctx *gin.Context) {
 	path := ctx.Param("path")
 
 	if !db.Exist(path) {
