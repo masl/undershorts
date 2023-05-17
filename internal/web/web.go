@@ -52,6 +52,13 @@ func Serve() (err error) {
 		}
 	}
 
+	// Route auth endpoints
+	auth := router.Group("/auth")
+	{
+		auth.POST("/singup", controllers.PostSingup)
+		auth.POST("/login", controllers.PostLogin)
+	}
+
 	webAddress := utils.GetEnv("UNDERSHORTS_WEB_ADDRESS", "0.0.0.0:8000")
 	return router.Run(webAddress)
 }
