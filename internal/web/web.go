@@ -65,7 +65,7 @@ func (w *WebServer) Serve() error {
 	// Route auth endpoints
 	auth := router.Group("/auth")
 	{
-		auth.POST("/singup", w.PostSignup)
+		auth.POST("/signup", w.PostSignup)
 		auth.POST("/login", w.PostLogin)
 	}
 

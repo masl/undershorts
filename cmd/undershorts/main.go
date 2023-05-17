@@ -25,6 +25,11 @@ func main() {
 		return
 	}
 
+	if err := pg.Init(); err != nil {
+		log.Fatalf("Failed initializing the database")
+		return
+	}
+
 	// Create redis
 	db.RedisClient = db.New()
 	err = db.RedisClient.Ping(context.Background()).Err()
