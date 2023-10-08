@@ -6,7 +6,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/masl/undershorts/internal/api/controllers"
+	"github.com/masl/undershorts/internal/api/health"
+	"github.com/masl/undershorts/internal/api/shorten"
+	"github.com/masl/undershorts/internal/api/unshorten"
 	"github.com/masl/undershorts/internal/db"
 	"github.com/masl/undershorts/internal/utils"
 	"github.com/masl/undershorts/web"
@@ -49,9 +51,9 @@ func Serve() (err error) {
 	{
 		v1 := api.Group("/v1")
 		{
-			v1.GET("/health", controllers.GetHealth)
-			v1.GET("/path/:path", controllers.GetPath)
-			v1.POST("/shorten", controllers.PostShorten)
+			v1.GET("/health", health.Handle())
+			v1.GET("/unshorten/:path", unshorten.Handle())
+			v1.POST("/shorten", shorten.Handle())
 		}
 	}
 
