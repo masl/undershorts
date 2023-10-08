@@ -1,12 +1,15 @@
-package web
+package api
 
 import (
+	_ "embed"
+	"html/template"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/masl/undershorts/internal/api/controllers"
 	"github.com/masl/undershorts/internal/db"
 	"github.com/masl/undershorts/internal/utils"
-	"github.com/masl/undershorts/internal/web/controllers"
+	"github.com/masl/undershorts/web"
 )
 
 func Serve() (err error) {
@@ -16,9 +19,9 @@ func Serve() (err error) {
 	router := gin.Default()
 
 	// Serve static files
-	router.Static("/assets", "./web/assets")
+	router.SetHTMLTemplate(template.Must(template.ParseFS(web.Index, "index.html")))
+	router.StaticFS("/static", http.FS(web.Static))
 
-	router.LoadHTMLFiles("./web/index.html")
 	router.GET("/", func(ctx *gin.Context) {
 		ctx.HTML(http.StatusOK, "index.html", nil)
 	})

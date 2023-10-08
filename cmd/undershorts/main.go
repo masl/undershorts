@@ -4,8 +4,8 @@ import (
 	"context"
 	"log"
 
+	"github.com/masl/undershorts/internal/api"
 	"github.com/masl/undershorts/internal/db"
-	"github.com/masl/undershorts/internal/web"
 )
 
 func main() {
@@ -18,5 +18,5 @@ func main() {
 	}
 
 	// Serve http server
-	panic(web.Serve())
+	panic(api.Serve())
 }

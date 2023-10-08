@@ -1,63 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
     <title>undershorts</title>
-    <meta name="description" content="">
-    <meta name="author" content="">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <link rel="stylesheet" href="assets/fonts/Raleway/font.css">
-
-    <link rel="stylesheet" href="assets/css/normalize.css">
-    <link rel="stylesheet" href="assets/css/skeleton.css">
-    <link rel="stylesheet" href="assets/css/style.css">
-
-    <link rel="icon" type="image/png" href="assets/images/favicon.png">
+    <!-- v1.9.6 -->
+    <script src="static/lib/htmx.min.js"></script>
+    <script src="static/lib/json-enc.js"></script>
 </head>
 <body>
-    <div class="container">
-        <div class="alert" id="alert">
-            <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-            Url has been copied
-        </div>
-
-        <div class="row">
-            <header>
-                <div class="one-half column">
-                    <h1>undershorts</h1>
-                    <h6>Brevity is the soul of wit</h6>
-                </div>
-            </header>
-        </div>
-
-        <div class="row">
-            <label for="urlInput">Your URL</label>
-            <form onsubmit="return false;">
-                <div class="six columns">
-                    <input class="u-full-width" type="url" placeholder="https://example.com" id="urlInput" required>
-                </div>
-                <div class="six columns">
-                    <input class="button-primary" type="submit" value="Submit" id="submitButton">
-                </div>
-            </form>
-        </div>
-
-        <div class="row">
-            <table class="twelve columns" id="urlTable" hidden>
-                <thead>
-                    <tr>
-                        <th>Short URL</th>
-                        <th>Long URL</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-        </div>
-
-    </div>
-    <script src="assets/js/shorten.js"></script>
-</body>
+    <!-- TODO: styling -->
+    <header>
+        <h1>undershorts</h1>
+        <p>Brevity is the soul of wit</p>
+    </header>
+    <main>
+        <label for="url-input">Your URL</label>
+        <form hx-post="/api/v1/shorten" hx-ext="json-enc">
+            <input type="url" placeholder="https://example.com" name="long-url" id="url-input" required>
+            <input type="submit" value="Submit" id="submit-button">
+        </form>
+        <table id="url-table">
+            <thead>
+                <tr>
+                    <th>Short URL</th>
+                    <th>Long URL</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </main>
 </html>
