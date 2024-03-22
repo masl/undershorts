@@ -18,7 +18,7 @@ func main() {
 	defer postgres.Close()
 
 	// Serve http server
-	err = web.Serve(*postgres)
+	err = web.Serve(postgres)
 	if err != nil {
 		slog.Error("starting webserver failed", "error", err)
 		os.Exit(1)

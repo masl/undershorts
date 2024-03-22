@@ -7,10 +7,12 @@ import (
 
 	"github.com/masl/undershorts/internal/db"
 	"github.com/masl/undershorts/internal/utils"
+	"github.com/masl/undershorts/internal/web/health"
+	"github.com/masl/undershorts/internal/web/short"
+	"github.com/masl/undershorts/internal/web/shorten"
 )
 
-func Serve(postgres db.PostgresClient) (err error) {
-
+func Serve(postgres *db.PostgresClient) (err error) {
 	// webserver router
 	router := http.NewServeMux()
 
@@ -29,19 +31,11 @@ func Serve(postgres db.PostgresClient) (err error) {
 	})
 
 	// TODO: serve frontend
-	// TODO: implement api endpoints
-	/*
-		// Route API endpoints
-		api := router.Group("/api")
-		{
-			v1 := api.Group("/v1")
-			{
-				v1.GET("/health", controllers.GetHealth)
-				v1.GET("/path/:path", controllers.GetPath)
-				v1.POST("/shorten", controllers.PostShorten)
-			}
-		}
-	*/
+
+	// serve api endpoints
+	router.HandleFunc("GET /api/v1/health", health.Handle())
+	router.HandleFunc("GET /api/v1/{shortURL}", short.Handle(postgres))
+	router.HandleFunc("POST /api/v1/shorten", shorten.Handle(postgres))
 
 	// serve webserver
 	addr := utils.GetEnv("WEB_ADDRESS", ":8080")
