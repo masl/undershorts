@@ -1,26 +1,20 @@
 package controllers
 
-import (
-	"net/http"
+func GetPath() {
+	/*
+		path := ctx.Param("path")
 
-	"github.com/gin-gonic/gin"
-	"github.com/masl/undershorts/internal/db"
-)
+		if !db.Exist(path) {
+			ctx.Writer.WriteHeader(http.StatusNotFound)
+			return
+		}
 
-// GET path
-func GetPath(ctx *gin.Context) {
-	path := ctx.Param("path")
+		url, err := db.GetURL(path)
+		if err != nil {
+			ctx.Writer.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 
-	if !db.Exist(path) {
-		ctx.Writer.WriteHeader(http.StatusNotFound)
-		return
-	}
-
-	url, err := db.GetURL(path)
-	if err != nil {
-		ctx.Writer.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{"ShortPath": path, "LongUrl": url})
+		ctx.JSON(http.StatusOK, gin.H{"ShortPath": path, "LongUrl": url})
+	*/
 }

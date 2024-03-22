@@ -1,57 +1,57 @@
 package web
 
 import (
+	"log/slog"
 	"net/http"
+	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/masl/undershorts/internal/db"
 	"github.com/masl/undershorts/internal/utils"
-	"github.com/masl/undershorts/internal/web/controllers"
 )
 
-func Serve() (err error) {
-	// Set gin mode
-	gin.SetMode(gin.DebugMode)
+func Serve(postgres db.PostgresClient) (err error) {
 
-	router := gin.Default()
+	// webserver router
+	router := http.NewServeMux()
 
-	// Serve static files
-	router.Static("/assets", "./web/assets")
+	// handle short url
+	router.HandleFunc("GET /{shortURL}", func(w http.ResponseWriter, r *http.Request) {
+		shortURL := r.PathValue("shortURL")
 
-	router.LoadHTMLFiles("./web/index.html")
-	router.GET("/", func(ctx *gin.Context) {
-		ctx.HTML(http.StatusOK, "index.html", nil)
-	})
-
-	// Route shortening redirect endpoint
-	router.GET("/:path", func(ctx *gin.Context) {
-		path := ctx.Param("path")
-
-		if !db.Exist(path) {
-			ctx.Writer.WriteHeader(http.StatusNotFound)
-			return
-		}
-
-		url, err := db.GetURL(path)
+		short, err := postgres.GetShortByShortURL(shortURL)
 		if err != nil {
-			ctx.Writer.WriteHeader(http.StatusInternalServerError)
+			// TODO: handle different error types
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
 
-		ctx.Redirect(http.StatusFound, url)
+		http.Redirect(w, r, short.LongURL, http.StatusFound)
 	})
 
-	// Route API endpoints
-	api := router.Group("/api")
-	{
-		v1 := api.Group("/v1")
+	// TODO: serve frontend
+	// TODO: implement api endpoints
+	/*
+		// Route API endpoints
+		api := router.Group("/api")
 		{
-			v1.GET("/health", controllers.GetHealth)
-			v1.GET("/path/:path", controllers.GetPath)
-			v1.POST("/shorten", controllers.PostShorten)
+			v1 := api.Group("/v1")
+			{
+				v1.GET("/health", controllers.GetHealth)
+				v1.GET("/path/:path", controllers.GetPath)
+				v1.POST("/shorten", controllers.PostShorten)
+			}
 		}
+	*/
+
+	// serve webserver
+	addr := utils.GetEnv("WEB_ADDRESS", ":8080")
+	slog.Info("starting webserver", "address", addr)
+	s := &http.Server{
+		Addr:         addr,
+		Handler:      router,
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 10 * time.Second,
 	}
 
-	webAddress := utils.GetEnv("UNDERSHORTS_WEB_ADDRESS", "0.0.0.0:8000")
-	return router.Run(webAddress)
+	return s.ListenAndServe()
 }

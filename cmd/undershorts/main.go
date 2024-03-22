@@ -1,22 +1,26 @@
 package main
 
 import (
-	"context"
-	"log"
+	"log/slog"
+	"os"
 
 	"github.com/masl/undershorts/internal/db"
 	"github.com/masl/undershorts/internal/web"
 )
 
 func main() {
-	// Create redis
-	db.RedisClient = db.New()
-	err := db.RedisClient.Ping(context.Background()).Err()
+	// Database client
+	postgres, err := db.NewPostgres()
 	if err != nil {
-		log.Println("A Problem with the redis connection occurred:", err)
-		return
+		slog.Error("connection to database could not be established", "error", err)
+		os.Exit(1)
 	}
+	defer postgres.Close()
 
 	// Serve http server
-	panic(web.Serve())
+	err = web.Serve(*postgres)
+	if err != nil {
+		slog.Error("starting webserver failed", "error", err)
+		os.Exit(1)
+	}
 }
