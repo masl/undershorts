@@ -47,6 +47,8 @@ audit:
 # DEVELOPMENT
 # ==================================================================================== #
 
+# BACKEND
+
 ## test: run all tests
 .PHONY: test
 test:
@@ -77,6 +79,36 @@ run/live:
 		--build.include_ext "go, tpl, tmpl, html, css, scss, js, ts, sql, jpeg, jpg, gif, png, bmp, svg, webp, ico" \
 		--misc.clean_on_exit "true"
 
+# FRONTEND
+
+FRONTEND_PATH := ./web
+
+## web-install: install the frontend application
+.PHONY: web-install
+web-install:
+	npm install --prefix ${FRONTEND_PATH}
+
+## web-build: build the frontend application
+.PHONY: web-build
+web-build:
+	npm run build --prefix ${FRONTEND_PATH}
+
+## web-run/live: run the frontend application with reloading on file changes
+.PHONY: web-run/live
+web-run/live:
+	npm run dev --prefix ${FRONTEND_PATH}
+
+## web-lint: run the frontend linter
+.PHONY: web-lint
+web-lint:
+	npm run lint --prefix ${FRONTEND_PATH}
+
+# ==================================================================================== #
+
+## start: start the application stack
+.PHONY: start
+start: web-build
+	make run
 
 # ==================================================================================== #
 # SERVICES
@@ -99,6 +131,6 @@ postgres:
 
 ## push: push changes to the remote Git repository
 .PHONY: push
-push: tidy audit no-dirty
+push: tidy audit web-lint no-dirty
 	git push
 

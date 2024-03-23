@@ -30,7 +30,14 @@ func Serve(postgres *db.PostgresClient) (err error) {
 		http.Redirect(w, r, short.LongURL, http.StatusFound)
 	})
 
-	// TODO: serve frontend
+	// serve frontend
+	router.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "web/dist/index.html")
+	})
+
+	router.HandleFunc("GET /assets/{file}", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "web/dist/assets/"+r.PathValue("file"))
+	})
 
 	// serve api endpoints
 	router.HandleFunc("GET /api/v1/health", health.Handle())
