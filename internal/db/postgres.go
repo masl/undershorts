@@ -25,6 +25,11 @@ func NewPostgres() (*PostgresClient, error) {
 		return nil, err
 	}
 
+	err = db.Ping()
+	if err != nil {
+		return nil, err
+	}
+
 	return &PostgresClient{
 		db: db,
 	}, nil
