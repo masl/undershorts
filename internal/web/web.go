@@ -1,6 +1,7 @@
 package web
 
 import (
+	"io/fs"
 	"log/slog"
 	"net/http"
 	"time"
@@ -12,7 +13,7 @@ import (
 	"github.com/masl/undershorts/internal/web/shorten"
 )
 
-func Serve(postgres *db.PostgresClient) (err error) {
+func Serve(postgres *db.PostgresClient, webFS fs.FS) (err error) {
 	// webserver router
 	router := http.NewServeMux()
 
@@ -32,11 +33,11 @@ func Serve(postgres *db.PostgresClient) (err error) {
 
 	// serve frontend
 	router.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "web/dist/index.html")
+		http.ServeFileFS(w, r, webFS, "index.html")
 	})
 
 	router.HandleFunc("GET /assets/{file}", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "web/dist/assets/"+r.PathValue("file"))
+		http.ServeFileFS(w, r, webFS, "assets/"+r.PathValue("file"))
 	})
 
 	// serve api endpoints
