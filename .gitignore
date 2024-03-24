@@ -16,3 +16,7 @@
 
 # Goland files
 .idea
+
+# System files
+.DS_Store
+
